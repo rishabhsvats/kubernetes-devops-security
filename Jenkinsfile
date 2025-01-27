@@ -29,11 +29,20 @@ pipeline {
               }
             }
           } 
-      stage('SonarQube - SAST') {
-            steps {
-              sh "mvn clean verify sonar:sonar -Dsonar.projectKey=numeric-application -Dsonar.projectName='numeric-application' -Dsonar.host.url=http://localhost:9000 -Dsonar.token=sqp_2c437cf7cff69fb4446b43b9f7054100c409d3f9"
-            }
-        } 
+    stage('SonarQube - SAST') {
+      steps {
+        withSonarQubeEnv('sonarqube') {
+          sh "mvn sonar:sonar \
+		              -Dsonar.projectKey=numeric-application \
+		              -Dsonar.host.url=http://10.0.2.15:9000"
+        }
+        timeout(time: 2, unit: 'MINUTES') {
+          script {
+            waitForQualityGate abortPipeline: true
+          }
+        }
+      }
+    }
         stage('Docker build and push') {
             steps {
               withDockerRegistry([credentialsId: "dockerhub", url: ""]){
