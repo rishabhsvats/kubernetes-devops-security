@@ -29,20 +29,30 @@ pipeline {
               }
             }
           } 
-    stage('SonarQube - SAST') {
-      steps {
-        withSonarQubeEnv('sonarqube') {
-          sh "mvn sonar:sonar \
-		              -Dsonar.projectKey=numeric-application \
-		              -Dsonar.host.url=http://10.0.2.15:9000"
-        }
-        timeout(time: 2, unit: 'MINUTES') {
-          script {
-            waitForQualityGate abortPipeline: true
+        stage('Vulnerability Scan - Docker ') {
+          steps {
+            sh "mvn dependency-check:check"
+          }
+          post {
+            always {
+              dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
+            }
           }
         }
-      }
-    }
+        stage('SonarQube - SAST') {
+          steps {
+            withSonarQubeEnv('sonarqube') {
+              sh "mvn sonar:sonar \
+                      -Dsonar.projectKey=numeric-application \
+                      -Dsonar.host.url=http://10.0.2.15:9000"
+            }
+            timeout(time: 2, unit: 'MINUTES') {
+              script {
+                waitForQualityGate abortPipeline: true
+              }
+            }
+          }
+        }
         stage('Docker build and push') {
             steps {
               withDockerRegistry([credentialsId: "dockerhub", url: ""]){
