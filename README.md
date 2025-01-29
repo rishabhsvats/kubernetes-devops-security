@@ -2,7 +2,7 @@
 
 - To run Sonarqube service use following docker run command
 ~~~
-docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
+docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000  -v /path/sonarqube/data:/opt/sonarqube/data -v /path/sonarqube/extensions:/opt/sonarqube/extensions sonarqube:latest
 ~~~
 
 
