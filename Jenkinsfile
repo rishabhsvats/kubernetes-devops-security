@@ -1,6 +1,12 @@
 pipeline {
   agent any
 
+  environment {
+    deploymentName = "devsecops"
+    containerName = "devsecops-container"
+    serviceName = "devsecops-svc"
+    imageName = "rishabh1234/numeric-app:${GIT_COMMIT}"
+  }
   stages {
       stage('Build Artifact') {
             steps {
